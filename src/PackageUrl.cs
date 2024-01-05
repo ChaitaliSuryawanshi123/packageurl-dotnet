@@ -141,18 +141,18 @@ namespace PackageUrl
             purl.Append('/');
             if (Namespace != null)
             {
-                string encodedNamespace = WebUtility.UrlEncode(Namespace).Replace(EncodedSlash, "/");
+                string encodedNamespace = Uri.EscapeDataString(Namespace).Replace(EncodedSlash, "/");
                 purl.Append(encodedNamespace);
                 purl.Append('/');
             }
             if (Name != null)
             {
-                string encodedName = WebUtility.UrlEncode(Name).Replace(EncodedColon, ":");
+                string encodedName = Uri.EscapeDataString(Name).Replace(EncodedColon, ":");
                 purl.Append(encodedName);
             }
             if (Version != null)
             {
-                string encodedVersion = WebUtility.UrlEncode(Version).Replace(EncodedColon, ":");
+                string encodedVersion = Uri.EscapeDataString(Version).Replace(EncodedColon, ":");
                 purl.Append('@').Append(encodedVersion);
             }
             if (Qualifiers != null && Qualifiers.Count > 0)
@@ -160,7 +160,7 @@ namespace PackageUrl
                 purl.Append("?");
                 foreach (var pair in Qualifiers)
                 {
-                    string encodedValue = WebUtility.UrlEncode(pair.Value).Replace(EncodedSlash, "/");
+                    string encodedValue = Uri.EscapeDataString(pair.Value).Replace(EncodedSlash, "/");
                     purl.Append(pair.Key.ToLower());
                     purl.Append('=');
                     purl.Append(encodedValue);
@@ -170,7 +170,7 @@ namespace PackageUrl
             }
             if (Subpath != null)
             {
-                string encodedSubpath = WebUtility.UrlEncode(Subpath).Replace(EncodedSlash, "/").Replace(EncodedColon, ":");
+                string encodedSubpath = Uri.EscapeDataString(Subpath).Replace(EncodedSlash, "/").Replace(EncodedColon, ":");
                 purl.Append("#").Append(encodedSubpath);
             }
             return purl.ToString();
@@ -210,7 +210,7 @@ namespace PackageUrl
             if (remainder.Contains("#"))
             { // subpath is optional - check for existence
                 int index = remainder.LastIndexOf("#");
-                Subpath = ValidateSubpath(WebUtility.UrlDecode(remainder.Substring(index + 1)));
+                Subpath = ValidateSubpath(Uri.UnescapeDataString(remainder.Substring(index + 1)));
                 remainder = remainder.Substring(0, index);
             }
 
@@ -224,7 +224,7 @@ namespace PackageUrl
             if (remainder.Contains("@"))
             { // version is optional - check for existence
                 int index = remainder.LastIndexOf("@");
-                Version = WebUtility.UrlDecode(remainder.Substring(index + 1));
+                Version = Uri.UnescapeDataString(remainder.Substring(index + 1));
                 remainder = remainder.Substring(0, index);
             }
 
@@ -240,7 +240,7 @@ namespace PackageUrl
             }
 
             Type = ValidateType(firstPartArray[0]);
-            Name = ValidateName(WebUtility.UrlDecode(firstPartArray[firstPartArray.Length - 1]));
+            Name = ValidateName(Uri.UnescapeDataString(firstPartArray[firstPartArray.Length - 1]));
 
             // Test for namespaces
             if (firstPartArray.Length > 2)
@@ -253,7 +253,7 @@ namespace PackageUrl
                 }
                 @namespace += firstPartArray[i];
 
-                Namespace = ValidateNamespace(WebUtility.UrlDecode(@namespace));
+                Namespace = ValidateNamespace(Uri.UnescapeDataString(@namespace));
             }
         }
 
@@ -302,7 +302,7 @@ namespace PackageUrl
                 if (pair.Contains("="))
                 {
                     string[] kvpair = pair.Split('=');
-                    list.Add(kvpair[0], WebUtility.UrlDecode(kvpair[1]));
+                    list.Add(kvpair[0], Uri.UnescapeDataString(kvpair[1]));
                 }
             }
             return list;
